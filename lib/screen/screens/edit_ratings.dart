@@ -184,6 +184,22 @@ class _EditReviewScreenState extends State<EditReviewScreen> {
                 height: 48,
                 child: ElevatedButton(
                   onPressed: () async {
+                    if (_formKey.currentState!.validate() && widget.rating.id != null) {
+                      final ratingProvider = Provider.of<RatingProvider>(context, listen: false);
+                      final formattedDate = '${_watchDate.year}-${_watchDate.month.toString().padLeft(2, '0')}-${_watchDate.day.toString().padLeft(2, '0')}';
+                      
+                      final success = await ratingProvider.updateRating(
+                        id: widget.rating.id!,
+                        rating: _rating,
+                        note: _noteController.text,
+                        watchDate: formattedDate,
+                        favorite: _favorite,
+                      );
+
+                      if (success && mounted) {
+                        Navigator.pop(context);
+                      }
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.brown,

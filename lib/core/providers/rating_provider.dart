@@ -54,5 +54,28 @@ class RatingProvider with ChangeNotifier {
       return false;
     }
   }
+ Future<bool> updateRating({
+    required int id,
+    required double rating,
+    required String note,
+    required String watchDate,
+    required bool favorite,
+  }) async {
+    try {
+      final data = {
+        'rating': rating,
+        'note': note,
+        'watch_date': watchDate,
+        'favorite': favorite,
+      };
+      await _repository.editRating(id, data);
+      await fetchRatings();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
 
 }

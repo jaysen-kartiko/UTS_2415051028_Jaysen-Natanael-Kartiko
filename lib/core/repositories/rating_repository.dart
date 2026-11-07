@@ -12,5 +12,8 @@ class RatingRepository {
     await _supabaseService.addRating(rating);
   }
 
+  Future<void> editRating(int id, Map<String, dynamic> data) async {
+    await _supabaseService.updateRating(id, data);
+  }
 
 }
