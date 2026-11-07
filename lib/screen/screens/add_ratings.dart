@@ -17,6 +17,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
   final TextEditingController _noteController = TextEditingController();
   DateTime _watchDate = DateTime.now();
   bool _favorite = false;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -24,10 +25,61 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
     super.dispose();
   }
 
+  void _submitReview() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isSubmitting = true;
+      });
+
+      final ratingProvider = Provider.of<RatingProvider>(context, listen: false);
+      final movie = widget.movieData ?? {};
+      final formattedDate = '${_watchDate.year}-${_watchDate.month.toString().padLeft(2, '0')}-${_watchDate.day.toString().padLeft(2, '0')}';
+
+      final success = await ratingProvider.addRating(
+        movieId: movie['id']?.toString() ?? '1',
+        rating: _rating,
+        note: _noteController.text.trim(),
+        watchDate: formattedDate,
+        favorite: _favorite,
+      );
+
+      setState(() {
+        _isSubmitting = false;
+      });
+
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Review berhasil ditambahkan!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context);
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Gagal Menyimpan'),
+            content: Text(ratingProvider.errorMessage.isNotEmpty
+                ? ratingProvider.errorMessage
+                : 'Terjadi kesalahan pada database.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK', style: TextStyle(color: Colors.brown)),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final movie = widget.movieData ?? {
-      'id': '1',
       'title': 'Oppenheimer',
       'year': 2023,
       'poster_url': 'https://picsum.photos/seed/oppenheimer/300/450',
@@ -123,8 +175,11 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                   ),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'Catatan review tidak boleh kosong';
+                  }
+                  if (value.trim().length < 5) {
+                    return 'Catatan review minimal 5 karakter';
                   }
                   return null;
                 },
@@ -177,30 +232,22 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      final ratingProvider = Provider.of<RatingProvider>(context, listen: false);
-                      final formattedDate = '${_watchDate.year}-${_watchDate.month.toString().padLeft(2, '0')}-${_watchDate.day.toString().padLeft(2, '0')}';
-                      
-                      final success = await ratingProvider.addRating(
-                        movieId: movie['id'].toString(),
-                        rating: _rating,
-                        note: _noteController.text,
-                        watchDate: formattedDate,
-                        favorite: _favorite,
-                      );
-
-                      if (success && mounted) {
-                        Navigator.pop(context);
-                      }
-                    }
-                  },
+                  onPressed: _isSubmitting ? null : _submitReview,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.brown,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Text('Simpan Review', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text('Simpan Review', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],

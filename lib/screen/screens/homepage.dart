@@ -32,9 +32,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ? const Center(child: CircularProgressIndicator(color: Colors.brown))
           : userProvider.errorMessage.isNotEmpty
               ? Center(
-                  child: Text(
-                    'Gagal memuat profil: ${userProvider.errorMessage}',
-                    style: const TextStyle(color: Colors.red),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                        const SizedBox(height: 12),
+                        Text(
+                          userProvider.errorMessage,
+                          style: const TextStyle(color: Colors.red, fontSize: 14),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            userProvider.fetchUserProfile(1);
+                          },
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Coba Lagi'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.brown,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 )
               : SingleChildScrollView(

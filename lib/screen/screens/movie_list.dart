@@ -55,14 +55,36 @@ class _MovieListState extends State<MovieList> {
           ),
         ],
       ),
-      body: movieProvider.isLoading
+body: movieProvider.isLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.brown))
           : movieProvider.errorMessage.isNotEmpty
               ? Center(
-                  child: Text(
-                    'Terjadi Kesalahan: ${movieProvider.errorMessage}',
-                    style: const TextStyle(color: Colors.red),
-                    textAlign: TextAlign.center,
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                        const SizedBox(height: 12),
+                        Text(
+                          movieProvider.errorMessage,
+                          style: const TextStyle(color: Colors.red, fontSize: 14),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            movieProvider.fetchMovies();
+                          },
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Coba Lagi'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.brown,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 )
               : Padding(
