@@ -193,7 +193,14 @@ class _MovieListState extends State<MovieList> {
                   'Ditemukan ${filteredMovies.length} Film',
                   style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.brown),
                 ),
-
+                IconButton(
+                  icon: Icon(isGrid ? Icons.list : Icons.grid_view, color: Colors.brown),
+                  onPressed: () {
+                    setState(() {
+                      isGrid = !isGrid;
+                    });
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -207,6 +214,98 @@ class _MovieListState extends State<MovieList> {
                     )
                   : LayoutBuilder(
                       builder: (context, constraints) {
+                        if (isGrid) {
+                          int crossAxisCount = 2;
+                          if (constraints.maxWidth > 900) {
+                            crossAxisCount = 4;
+                          } else if (constraints.maxWidth > 600) {
+                            crossAxisCount = 3;
+                          }
+                          return GridView.builder(
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: crossAxisCount,
+                              childAspectRatio: 0.58,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                            ),
+                            itemCount: filteredMovies.length,
+                            itemBuilder: (context, index) {
+                              final movie = filteredMovies[index];
+                              final isWatchlist = watchlist.contains(movie['title']);
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MovieDetailScreen(movieData: {
+                                        ...movie,
+                                        'poster_url': movie['poster'],
+                                      }),
+                                    ),
+                                  );
+                                },
+                                child: Card(
+                                  clipBehavior: Clip.antiAlias,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Image.network(
+                                          movie['poster'],
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${movie['title']} (${movie['year']})',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              '${movie['genre']} • ${movie['country']}',
+                                              style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
+                                            ),
+                                            const SizedBox(height: 6),
+                                            SizedBox(
+                                              width: double.infinity,
+                                              height: 28,
+                                              child: ElevatedButton.icon(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    if (isWatchlist) {
+                                                      watchlist.remove(movie['title']);
+                                                    } else {
+                                                      watchlist.add(movie['title']);
+                                                    }
+                                                  });
+                                                },
+                                                icon: Icon(isWatchlist ? Icons.check : Icons.add, size: 14),
+                                                label: Text(isWatchlist ? 'Watchlisted' : 'Watchlist', style: const TextStyle(fontSize: 10)),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: isWatchlist ? Colors.green : Colors.brown,
+                                                  foregroundColor: Colors.white,
+                                                  padding: EdgeInsets.zero,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        } else {
                           return ListView.builder(
                             itemCount: filteredMovies.length,
                             itemBuilder: (context, index) {
@@ -261,6 +360,7 @@ class _MovieListState extends State<MovieList> {
                             },
                           );
                         }
+                      },
                     ),
             ),
           ],

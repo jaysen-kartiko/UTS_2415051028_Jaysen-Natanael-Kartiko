@@ -82,12 +82,22 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
+          if (constraints.maxWidth < 840) {
             return Scaffold(
               body: _pages[currentIndex],
               bottomNavigationBar: buildNavigationBar(),
             );
+          }
 
-         
+          return Scaffold(
+            body: Row(
+              children: [
+                buildNavigationRail(),
+                const VerticalDivider(width: 1),
+                Expanded(child: _pages[currentIndex]),
+              ],
+            ),
+          );
         },
       ),
     );
