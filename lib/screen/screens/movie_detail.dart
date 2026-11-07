@@ -12,14 +12,14 @@ class MovieDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final movieMap = movieData ?? {
-      'id': '1',
-      'title': 'Oppenheimer',
-      'year': 2023,
-      'synopsis': 'Kisah ilmuwan Amerika, J. Robert Oppenheimer, dan perannya dalam pengembangan bom atom.',
-      'directors': 'Christopher Nolan',
-      'poster_url': 'https://picsum.photos/seed/oppenheimer/300/450',
-      'category': 'Drama',
-      'country': 'USA',
+      'id': '-',
+      'title': '-',
+      'year': 0000,
+      'synopsis': '-',
+      'directors': '-',
+      'poster_url': '-',
+      'category': '-',
+      'country': '-',
     };
 
     final movie = Movie.fromJson(movieMap);

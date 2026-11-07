@@ -4,6 +4,9 @@ import '../../core/providers/movie_provider.dart';
 import '../../core/providers/watchlist_provider.dart';
 import 'movie_detail.dart';
 import 'watchlist.dart';
+import '../components/movie_filter_chips.dart';
+import '../components/movie_grid_card.dart';
+import '../components/movie_list_tile.dart';
 
 class MovieList extends StatefulWidget {
   const MovieList({super.key});
@@ -55,7 +58,7 @@ class _MovieListState extends State<MovieList> {
           ),
         ],
       ),
-body: movieProvider.isLoading
+      body: movieProvider.isLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.brown))
           : movieProvider.errorMessage.isNotEmpty
               ? Center(
@@ -73,9 +76,7 @@ body: movieProvider.isLoading
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton.icon(
-                          onPressed: () {
-                            movieProvider.fetchMovies();
-                          },
+                          onPressed: () => movieProvider.fetchMovies(),
                           icon: const Icon(Icons.refresh),
                           label: const Text('Coba Lagi'),
                           style: ElevatedButton.styleFrom(
@@ -92,11 +93,7 @@ body: movieProvider.isLoading
                   child: Column(
                     children: [
                       TextField(
-                        onChanged: (value) {
-                          setState(() {
-                            searchQuery = value;
-                          });
-                        },
+                        onChanged: (value) => setState(() => searchQuery = value),
                         decoration: InputDecoration(
                           hintText: 'Cari nama film...',
                           prefixIcon: const Icon(Icons.search, color: Colors.brown),
@@ -113,48 +110,22 @@ body: movieProvider.isLoading
                         ),
                       ),
                       const SizedBox(height: 12),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            const Text('Genre: ', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.brown)),
-                            ...genres.map((genre) => Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                  child: ChoiceChip(
-                                    label: Text(genre),
-                                    selected: selectedGenre == genre,
-                                    selectedColor: Colors.brown,
-                                    labelStyle: TextStyle(
-                                      color: selectedGenre == genre ? Colors.white : Colors.brown,
-                                    ),
-                                    onSelected: (selected) {
-                                      setState(() {
-                                        selectedGenre = genre;
-                                      });
-                                    },
-                                  ),
-                                )),
-                            const SizedBox(width: 16),
-                            const Text('Negara: ', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.brown)),
-                            ...countries.map((country) => Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                  child: ChoiceChip(
-                                    label: Text(country),
-                                    selected: selectedCountry == country,
-                                    selectedColor: Colors.brown,
-                                    labelStyle: TextStyle(
-                                      color: selectedCountry == country ? Colors.white : Colors.brown,
-                                    ),
-                                    onSelected: (selected) {
-                                      setState(() {
-                                        selectedCountry = country;
-                                      });
-                                    },
-                                  ),
-                                )),
-                          ],
-                        ),
+                      
+                      // Menggunakan Component Reusable: MovieFilterChips
+                      MovieFilterChips(
+                        title: 'Genre:',
+                        items: genres,
+                        selectedItem: selectedGenre,
+                        onSelected: (genre) => setState(() => selectedGenre = genre),
                       ),
+                      const SizedBox(height: 8),
+                      MovieFilterChips(
+                        title: 'Negara:',
+                        items: countries,
+                        selectedItem: selectedCountry,
+                        onSelected: (country) => setState(() => selectedCountry = country),
+                      ),
+                      
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -165,11 +136,7 @@ body: movieProvider.isLoading
                           ),
                           IconButton(
                             icon: Icon(isGrid ? Icons.list : Icons.grid_view, color: Colors.brown),
-                            onPressed: () {
-                              setState(() {
-                                isGrid = !isGrid;
-                              });
-                            },
+                            onPressed: () => setState(() => isGrid = !isGrid),
                           ),
                         ],
                       ),
@@ -202,69 +169,18 @@ body: movieProvider.isLoading
                                       itemBuilder: (context, index) {
                                         final movie = filteredMovies[index];
                                         final isWatchlist = watchlistProvider.isWatchlisted(movie);
-                                        return GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => MovieDetailScreen(movieData: movie.toJson()),
-                                              ),
-                                            );
-                                          },
-                                          child: Card(
-                                            clipBehavior: Clip.antiAlias,
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Expanded(
-                                                  child: Image.network(
-                                                    movie.posterUrl,
-                                                    width: double.infinity,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: const EdgeInsets.all(8.0),
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      Text(
-                                                        '${movie.title} (${movie.year})',
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                                                      ),
-                                                      const SizedBox(height: 2),
-                                                      Text(
-                                                        '${movie.category} • ${movie.country}',
-                                                        style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis,
-                                                      ),
-                                                      const SizedBox(height: 6),
-                                                      SizedBox(
-                                                        width: double.infinity,
-                                                        height: 28,
-                                                        child: ElevatedButton.icon(
-                                                          onPressed: () {
-                                                            watchlistProvider.toggleWatchlist(movie);
-                                                          },
-                                                          icon: Icon(isWatchlist ? Icons.check : Icons.add, size: 14),
-                                                          label: Text(isWatchlist ? 'Watchlisted' : 'Watchlist', style: const TextStyle(fontSize: 10)),
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor: isWatchlist ? Colors.green : Colors.brown,
-                                                            foregroundColor: Colors.white,
-                                                            padding: EdgeInsets.zero,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
+                                        
+                                        // Menggunakan Component Reusable: MovieGridCard
+                                        return MovieGridCard(
+                                          movie: movie,
+                                          isWatchlist: isWatchlist,
+                                          onTap: () => Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => MovieDetailScreen(movieData: movie.toJson()),
                                             ),
                                           ),
+                                          onWatchlistToggle: () => watchlistProvider.toggleWatchlist(movie),
                                         );
                                       },
                                     );
@@ -274,42 +190,18 @@ body: movieProvider.isLoading
                                       itemBuilder: (context, index) {
                                         final movie = filteredMovies[index];
                                         final isWatchlist = watchlistProvider.isWatchlisted(movie);
-                                        return Card(
-                                          margin: const EdgeInsets.only(bottom: 8),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                          child: ListTile(
-                                            leading: ClipRRect(
-                                              borderRadius: BorderRadius.circular(4),
-                                              child: Image.network(
-                                                movie.posterUrl,
-                                                width: 45,
-                                                height: 65,
-                                                fit: BoxFit.cover,
-                                              ),
+                                        
+                                        // Menggunakan Component Reusable: MovieListTile
+                                        return MovieListTile(
+                                          movie: movie,
+                                          isWatchlist: isWatchlist,
+                                          onTap: () => Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => MovieDetailScreen(movieData: movie.toJson()),
                                             ),
-                                            title: Text(
-                                              '${movie.title} (${movie.year})',
-                                              style: const TextStyle(fontWeight: FontWeight.bold),
-                                            ),
-                                            subtitle: Text('${movie.category} • ${movie.country}'),
-                                            trailing: IconButton(
-                                              icon: Icon(
-                                                isWatchlist ? Icons.bookmark : Icons.bookmark_border,
-                                                color: Colors.brown,
-                                              ),
-                                              onPressed: () {
-                                                watchlistProvider.toggleWatchlist(movie);
-                                              },
-                                            ),
-                                            onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => MovieDetailScreen(movieData: movie.toJson()),
-                                                ),
-                                              );
-                                            },
                                           ),
+                                          onWatchlistToggle: () => watchlistProvider.toggleWatchlist(movie),
                                         );
                                       },
                                     );
