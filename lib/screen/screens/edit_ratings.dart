@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/models/movie.dart';
+import '../../core/models/movie_rating.dart';
+import '../../core/providers/rating_provider.dart';
 
 class EditReviewScreen extends StatefulWidget {
-  final Map<String, dynamic>? reviewData;
+  final MovieRating rating;
+  final Movie? movie;
 
-  const EditReviewScreen({super.key, this.reviewData});
+  const EditReviewScreen({super.key, required this.rating, this.movie});
 
   @override
   State<EditReviewScreen> createState() => _EditReviewScreenState();
@@ -19,20 +24,10 @@ class _EditReviewScreenState extends State<EditReviewScreen> {
   @override
   void initState() {
     super.initState();
-    final review = widget.reviewData ?? {
-      'title': 'Oppenheimer',
-      'year': 2023,
-      'rating': 4.5,
-      'note': 'Visual dan musik latarnya luar biasa menegangkan!',
-      'watch_date': DateTime.now(),
-      'favorite': true,
-      'poster': 'https://picsum.photos/seed/oppenheimer/300/450',
-    };
-
-    _rating = review['rating'] ?? 4.0;
-    _noteController = TextEditingController(text: review['note'] ?? '');
-    _watchDate = review['watch_date'] is DateTime ? review['watch_date'] : DateTime.now();
-    _favorite = review['favorite'] ?? false;
+    _rating = widget.rating.rating;
+    _noteController = TextEditingController(text: widget.rating.note);
+    _watchDate = DateTime.tryParse(widget.rating.watchDate) ?? DateTime.now();
+    _favorite = widget.rating.favorite;
   }
 
   @override
@@ -43,11 +38,9 @@ class _EditReviewScreenState extends State<EditReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final review = widget.reviewData ?? {
-      'title': 'Oppenheimer',
-      'year': 2023,
-      'poster': 'https://picsum.photos/seed/oppenheimer/300/450',
-    };
+    final title = widget.movie?.title ?? 'Film Tidak Diketahui';
+    final year = widget.movie?.year.toString() ?? '';
+    final poster = widget.movie?.posterUrl ?? '';
 
     return Scaffold(
       appBar: AppBar(
@@ -66,12 +59,9 @@ class _EditReviewScreenState extends State<EditReviewScreen> {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      review['poster'],
-                      width: 60,
-                      height: 90,
-                      fit: BoxFit.cover,
-                    ),
+                    child: poster.isNotEmpty
+                        ? Image.network(poster, width: 60, height: 90, fit: BoxFit.cover)
+                        : Container(width: 60, height: 90, color: Colors.grey.shade300),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -79,7 +69,7 @@ class _EditReviewScreenState extends State<EditReviewScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${review['title']} (${review['year']})',
+                          '$title ($year)',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -169,7 +159,7 @@ class _EditReviewScreenState extends State<EditReviewScreen> {
                     },
                     icon: const Icon(Icons.calendar_today, color: Colors.brown, size: 16),
                     label: Text(
-                      '${_watchDate.day}-${_watchDate.month}-${_watchDate.year}',
+                      '${_watchDate.year}-${_watchDate.month.toString().padLeft(2, '0')}-${_watchDate.day.toString().padLeft(2, '0')}',
                       style: const TextStyle(color: Colors.brown),
                     ),
                   ),
@@ -194,9 +184,6 @@ class _EditReviewScreenState extends State<EditReviewScreen> {
                 height: 48,
                 child: ElevatedButton(
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.pop(context);
-                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.brown,
