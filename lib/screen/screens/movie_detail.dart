@@ -1,36 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/providers/watchlist_provider.dart';
+import '../../core/models/movie.dart'; // Sesuaikan path model Anda
 import '../screens/add_ratings.dart';
 
-class MovieDetailScreen extends StatefulWidget {
-  final Map<String, dynamic>? movieData;
+class MovieDetailScreen extends StatelessWidget {
+  final Map<String, dynamic> movieData;
 
-  const MovieDetailScreen({super.key, this.movieData});
-
-  @override
-  State<MovieDetailScreen> createState() => _MovieDetailScreenState();
-}
-
-class _MovieDetailScreenState extends State<MovieDetailScreen> {
-  bool isWatchlisted = false;
+  const MovieDetailScreen({super.key, required this.movieData});
 
   @override
   Widget build(BuildContext context) {
-    final movie = widget.movieData ?? {
-      'id': '1',
-      'title': 'Oppenheimer',
-      'year': 2023,
-      'synopsis':
-          'Kisah ilmuwan Amerika, J. Robert Oppenheimer, dan perannya dalam pengembangan bom atom selama Perang Dunia II pada proyek Manhattan yang mengubah jalannya sejarah dunia.',
-      'directors': 'Christopher Nolan',
-      'poster_url': 'https://picsum.photos/seed/oppenheimer/300/450',
-      'category': 'Drama, History, Biography',
-      'country': 'USA',
-    };
+    // Ubah data map kembali menjadi objek Movie agar aman digunakan dengan Provider
+    final Movie movie = Movie.fromJson(movieData);
+    final watchlistProvider = Provider.of<WatchlistProvider>(context);
+    final bool isWatchlisted = watchlistProvider.isWatchlisted(movie);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          movie['title'],
+          movie.title,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.brown,
@@ -47,7 +36,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: NetworkImage(movie['poster_url']),
+                      image: NetworkImage(movie.posterUrl),
                       fit: BoxFit.cover,
                       colorFilter: ColorFilter.mode(
                         Colors.black.withOpacity(0.6),
@@ -64,7 +53,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
-                          movie['poster_url'],
+                          movie.posterUrl,
                           width: 120,
                           height: 180,
                           fit: BoxFit.cover,
@@ -77,7 +66,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Text(
-                              '${movie['title']} (${movie['year']})',
+                              '${movie.title} (${movie.year})',
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -86,7 +75,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Sutradara:\n${movie['directors']}',
+                              'Sutradara:\n${movie.directors}',
                               style: const TextStyle(
                                 fontSize: 13,
                                 color: Colors.white70,
@@ -94,7 +83,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              '${movie['category']}\n${movie['country']}',
+                              '${movie.category}\n${movie.country}',
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.white60,
@@ -118,9 +107,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            setState(() {
-                              isWatchlisted = !isWatchlisted;
-                            });
+                            watchlistProvider.toggleWatchlist(movie);
                           },
                           icon: Icon(
                             isWatchlisted ? Icons.check : Icons.add,
@@ -148,7 +135,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => AddReviewScreen(movieData: movie),
+                                builder: (context) => AddReviewScreen(movieData: movieData),
                               ),
                             );
                           },
@@ -177,7 +164,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    movie['synopsis'],
+                    movie.synopsis,
                     style: const TextStyle(
                       fontSize: 14,
                       height: 1.5,
@@ -185,7 +172,6 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                 
                 ],
               ),
             ),

@@ -1,39 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/providers/watchlist_provider.dart';
+import 'movie_detail.dart';
 
-class WatchlistScreen extends StatefulWidget {
+class WatchlistScreen extends StatelessWidget {
   const WatchlistScreen({super.key});
 
   @override
-  State<WatchlistScreen> createState() => _WatchlistScreenState();
-}
-
-class _WatchlistScreenState extends State<WatchlistScreen> {
-  final List watchlistMovies = [
-    {
-      'title': 'Oppenheimer',
-      'year': 2023,
-      'genre': 'Drama',
-      'country': 'USA',
-      'poster': 'https://picsum.photos/seed/oppenheimer/300/450',
-    },
-    {
-      'title': 'Dune: Part Two',
-      'year': 2024,
-      'genre': 'Sci-Fi',
-      'country': 'USA',
-      'poster': 'https://picsum.photos/seed/dune2/300/450',
-    },
-    {
-      'title': 'Interstellar',
-      'year': 2014,
-      'genre': 'Sci-Fi',
-      'country': 'USA',
-      'poster': 'https://picsum.photos/seed/interstellar/300/450',
-    },
-  ];
-
-  @override
   Widget build(BuildContext context) {
+    final watchlistProvider = Provider.of<WatchlistProvider>(context);
+    final watchlistMovies = watchlistProvider.watchlist;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Watchlist Film', style: TextStyle(color: Colors.brown, fontWeight: FontWeight.bold)),
@@ -61,26 +38,31 @@ class _WatchlistScreenState extends State<WatchlistScreen> {
                       leading: ClipRRect(
                         borderRadius: BorderRadius.circular(4),
                         child: Image.network(
-                          movie['poster'],
+                          movie.posterUrl,
                           width: 45,
                           height: 65,
                           fit: BoxFit.cover,
                         ),
                       ),
                       title: Text(
-                        '${movie['title']} (${movie['year']})',
+                        '${movie.title} (${movie.year})',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      subtitle: Text('${movie['genre']} • ${movie['country']}'),
+                      subtitle: Text('${movie.category} • ${movie.country}'),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () {
-                          setState(() {
-                            watchlistMovies.removeAt(index);
-                          });
+                          watchlistProvider.toggleWatchlist(movie);
                         },
                       ),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MovieDetailScreen(movieData: movie.toJson()),
+                          ),
+                        );
+                      },
                     ),
                   );
                 },

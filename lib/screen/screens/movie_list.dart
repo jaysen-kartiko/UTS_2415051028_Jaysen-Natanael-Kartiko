@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/providers/watchlist_provider.dart';
+import '../../core/models/movie.dart';
 import 'movie_detail.dart';
 import 'watchlist.dart';
+
 class MovieList extends StatefulWidget {
   const MovieList({super.key});
 
@@ -13,86 +17,94 @@ class _MovieListState extends State<MovieList> {
   String selectedGenre = 'Semua';
   String selectedCountry = 'Semua';
   bool isGrid = true;
-  final Set<String> watchlist = {};
 
-  final List<String> genres = ['Semua', 'Sci-Fi', 'Drama', 'Action', 'Animation'];
+  final List<String> genres = ['Semua', 'Sci-Fi', 'Drama', 'Action'];
   final List<String> countries = ['Semua', 'USA', 'UK', 'South Korea'];
 
-  final List movies = [
-    {
+  // Data film statis dikonversi ke dalam list objek Movie
+  final List<Movie> movies = [
+    Movie.fromJson({
       'id': '1',
+      'created_at': '2023-01-01',
       'title': 'Oppenheimer',
       'year': 2023,
       'genre': 'Drama',
       'country': 'USA',
       'directors': 'Christopher Nolan',
-      'synopsis': 'Kisah ilmuwan Amerika, J. Robert Oppenheimer, dan perannya dalam pengembangan bom atom selama Perang Dunia II pada proyek Manhattan yang mengubah jalannya sejarah dunia.',
+      'synopsis': 'Kisah ilmuwan Amerika, J. Robert Oppenheimer, dan perannya dalam pengembangan bom atom.',
       'category': 'Drama, History, Biography',
-      'poster': 'https://picsum.photos/seed/oppenheimer/300/450',
-    },
-    {
+      'poster_url': 'https://picsum.photos/seed/oppenheimer/300/450',
+    }),
+    Movie.fromJson({
       'id': '2',
+      'created_at': '2024-01-01',
       'title': 'Dune: Part Two',
       'year': 2024,
       'genre': 'Sci-Fi',
       'country': 'USA',
       'directors': 'Denis Villeneuve',
-      'synopsis': 'Paul Atreides bergabung dengan Chani dan Suku Fremen sambil mencari jalan balas dendam terhadap konspirator yang menghancurkan keluarganya.',
+      'synopsis': 'Paul Atreides bergabung dengan Chani dan Suku Fremen untuk balas dendam.',
       'category': 'Sci-Fi, Adventure',
-      'poster': 'https://picsum.photos/seed/dune2/300/450',
-    },
-    {
+      'poster_url': 'https://picsum.photos/seed/dune2/300/450',
+    }),
+    Movie.fromJson({
       'id': '3',
+      'created_at': '2019-01-01',
       'title': 'Parasite',
       'year': 2019,
       'genre': 'Drama',
       'country': 'South Korea',
       'directors': 'Bong Joon Ho',
-      'synopsis': 'Keluarga Kim yang miskin menyusup ke dalam kehidupan keluarga Park yang kaya raya melalui tipu muslihat hingga kejadian tak terduga terjadi.',
+      'synopsis': 'Keluarga Kim menyusup ke dalam kehidupan keluarga Park yang kaya raya.',
       'category': 'Thriller, Drama, Comedy',
-      'poster': 'https://picsum.photos/seed/parasite/300/450',
-    },
-    {
+      'poster_url': 'https://picsum.photos/seed/parasite/300/450',
+    }),
+    Movie.fromJson({
       'id': '4',
+      'created_at': '2014-01-01',
       'title': 'Interstellar',
       'year': 2014,
       'genre': 'Sci-Fi',
       'country': 'USA',
       'directors': 'Christopher Nolan',
-      'synopsis': 'Sekelompok astronot melakukan perjalanan melalui lubang cacing di luar angkasa demi mencari planet baru untuk kelangsungan hidup umat manusia.',
+      'synopsis': 'Sekelompok astronot melakukan perjalanan melalui lubang cacing di luar angkasa.',
       'category': 'Sci-Fi, Drama, Adventure',
-      'poster': 'https://picsum.photos/seed/interstellar/300/450',
-    },
-    {
+      'poster_url': 'https://picsum.photos/seed/interstellar/300/450',
+    }),
+    Movie.fromJson({
       'id': '5',
+      'created_at': '2008-01-01',
       'title': 'The Dark Knight',
       'year': 2008,
       'genre': 'Action',
       'country': 'USA',
       'directors': 'Christopher Nolan',
-      'synopsis': 'Batman harus menghadapi ancaman baru dari dalang kriminal psikopathic bernama Joker yang ingin menciptakan kekacauan di Gotham.',
+      'synopsis': 'Batman menghadapi ancaman baru dari dalang kriminal psikopathic bernama Joker.',
       'category': 'Action, Crime, Drama',
-      'poster': 'https://picsum.photos/seed/darkknight/300/450',
-    },
-    {
+      'poster_url': 'https://picsum.photos/seed/darkknight/300/450',
+    }),
+    Movie.fromJson({
       'id': '6',
+      'created_at': '2000-01-01',
       'title': 'Gladiator',
       'year': 2000,
       'genre': 'Action',
       'country': 'UK',
       'directors': 'Ridley Scott',
-      'synopsis': 'Seorang jenderal Romawi yang dikhianati mencari balas dendam terhadap kaisar korup yang membunuh keluarganya.',
+      'synopsis': 'Seorang jenderal Romawi yang dikhianati mencari balas dendam terhadap kaisar korup.',
       'category': 'Action, Adventure, Drama',
-      'poster': 'https://picsum.photos/seed/gladiator/300/450',
-    },
+      'poster_url': 'https://picsum.photos/seed/gladiator/300/450',
+    }),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final watchlistProvider = Provider.of<WatchlistProvider>(context);
+
     final filteredMovies = movies.where((movie) {
-      final matchesSearch = movie['title'].toLowerCase().contains(searchQuery.toLowerCase());
-      final matchesGenre = selectedGenre == 'Semua' || movie['genre'] == selectedGenre;
-      final matchesCountry = selectedCountry == 'Semua' || movie['country'] == selectedCountry;
+      final matchesSearch = movie.title.toLowerCase().contains(searchQuery.toLowerCase());
+      final matchesGenre = selectedGenre == 'Semua' || movie.category.contains(selectedGenre);
+      final matchesCountry = selectedCountry == 'Semua' || movie.country == selectedCountry;
       return matchesSearch && matchesGenre && matchesCountry;
     }).toList();
 
@@ -107,12 +119,12 @@ class _MovieListState extends State<MovieList> {
             icon: const Icon(Icons.bookmark, color: Colors.brown),
             tooltip: 'Watchlist',
             onPressed: () {
-                                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => WatchlistScreen(),
-                                    ),
-                                  );
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WatchlistScreen(),
+                ),
+              );
             },
           ),
         ],
@@ -231,16 +243,14 @@ class _MovieListState extends State<MovieList> {
                             itemCount: filteredMovies.length,
                             itemBuilder: (context, index) {
                               final movie = filteredMovies[index];
-                              final isWatchlist = watchlist.contains(movie['title']);
+                              final isWatchlist = watchlistProvider.isWatchlisted(movie);
+
                               return GestureDetector(
                                 onTap: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => MovieDetailScreen(movieData: {
-                                        ...movie,
-                                        'poster_url': movie['poster'],
-                                      }),
+                                      builder: (context) => MovieDetailScreen(movieData: movie.toJson()),
                                     ),
                                   );
                                 },
@@ -252,7 +262,7 @@ class _MovieListState extends State<MovieList> {
                                     children: [
                                       Expanded(
                                         child: Image.network(
-                                          movie['poster'],
+                                          movie.posterUrl,
                                           width: double.infinity,
                                           fit: BoxFit.cover,
                                         ),
@@ -263,14 +273,16 @@ class _MovieListState extends State<MovieList> {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              '${movie['title']} (${movie['year']})',
+                                              '${movie.title} (${movie.year})',
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
-                                              '${movie['genre']} • ${movie['country']}',
+                                              '${movie.category}\n${movie.country}',
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
                                               style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
                                             ),
                                             const SizedBox(height: 6),
@@ -279,13 +291,7 @@ class _MovieListState extends State<MovieList> {
                                               height: 28,
                                               child: ElevatedButton.icon(
                                                 onPressed: () {
-                                                  setState(() {
-                                                    if (isWatchlist) {
-                                                      watchlist.remove(movie['title']);
-                                                    } else {
-                                                      watchlist.add(movie['title']);
-                                                    }
-                                                  });
+                                                  watchlistProvider.toggleWatchlist(movie);
                                                 },
                                                 icon: Icon(isWatchlist ? Icons.check : Icons.add, size: 14),
                                                 label: Text(isWatchlist ? 'Watchlisted' : 'Watchlist', style: const TextStyle(fontSize: 10)),
@@ -310,7 +316,8 @@ class _MovieListState extends State<MovieList> {
                             itemCount: filteredMovies.length,
                             itemBuilder: (context, index) {
                               final movie = filteredMovies[index];
-                              final isWatchlist = watchlist.contains(movie['title']);
+                              final isWatchlist = watchlistProvider.isWatchlisted(movie);
+
                               return Card(
                                 margin: const EdgeInsets.only(bottom: 8),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -318,40 +325,32 @@ class _MovieListState extends State<MovieList> {
                                   leading: ClipRRect(
                                     borderRadius: BorderRadius.circular(4),
                                     child: Image.network(
-                                      movie['poster'],
+                                      movie.posterUrl,
                                       width: 45,
                                       height: 65,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
                                   title: Text(
-                                    '${movie['title']} (${movie['year']})',
+                                    '${movie.title} (${movie.year})',
                                     style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                  subtitle: Text('${movie['genre']} • ${movie['country']}'),
+                                  subtitle: Text('${movie.category}\n${movie.country}'),
+                                  isThreeLine: true,
                                   trailing: IconButton(
                                     icon: Icon(
                                       isWatchlist ? Icons.bookmark : Icons.bookmark_border,
                                       color: Colors.brown,
                                     ),
                                     onPressed: () {
-                                      setState(() {
-                                        if (isWatchlist) {
-                                          watchlist.remove(movie['title']);
-                                        } else {
-                                          watchlist.add(movie['title']);
-                                        }
-                                      });
+                                      watchlistProvider.toggleWatchlist(movie);
                                     },
                                   ),
                                   onTap: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => MovieDetailScreen(movieData: {
-                                          ...movie,
-                                          'poster_url': movie['poster'],
-                                        }),
+                                        builder: (context) => MovieDetailScreen(movieData: movie.toJson()),
                                       ),
                                     );
                                   },
