@@ -28,5 +28,31 @@ class RatingProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> addRating({
+    required String movieId,
+    required double rating,
+    required String note,
+    required String watchDate,
+    required bool favorite,
+  }) async {
+    try {
+      final newRating = MovieRating(
+        createdAt: DateTime.now().toIso8601String(),
+        rating: rating,
+        note: note,
+        movieId: movieId,
+        watchDate: watchDate,
+        userId: 1,
+        favorite: favorite,
+      );
+      await _repository.createRating(newRating);
+      await fetchRatings();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
 
 }

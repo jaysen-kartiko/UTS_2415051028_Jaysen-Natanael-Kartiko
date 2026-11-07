@@ -15,6 +15,9 @@ class SupabaseService {
     return data.map((json) => MovieRating.fromJson(json)).toList();
   }
 
+  Future<void> addRating(MovieRating rating) async {
+    await _client.from('movie_ratings').insert(rating.toJson());
+  }
 
 
 

@@ -183,7 +183,7 @@ class _EditReviewScreenState extends State<EditReviewScreen> {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.brown,

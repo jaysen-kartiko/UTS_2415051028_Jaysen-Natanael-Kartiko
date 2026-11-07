@@ -8,5 +8,9 @@ class RatingRepository {
     return await _supabaseService.fetchMovieRatings();
   }
 
+  Future<void> createRating(MovieRating rating) async {
+    await _supabaseService.addRating(rating);
+  }
+
 
 }

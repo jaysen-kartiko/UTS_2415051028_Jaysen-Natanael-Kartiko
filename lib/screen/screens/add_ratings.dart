@@ -178,6 +178,22 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                 height: 48,
                 child: ElevatedButton(
                   onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      final ratingProvider = Provider.of<RatingProvider>(context, listen: false);
+                      final formattedDate = '${_watchDate.year}-${_watchDate.month.toString().padLeft(2, '0')}-${_watchDate.day.toString().padLeft(2, '0')}';
+                      
+                      final success = await ratingProvider.addRating(
+                        movieId: movie['id'].toString(),
+                        rating: _rating,
+                        note: _noteController.text,
+                        watchDate: formattedDate,
+                        favorite: _favorite,
+                      );
+
+                      if (success && mounted) {
+                        Navigator.pop(context);
+                      }
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.brown,
