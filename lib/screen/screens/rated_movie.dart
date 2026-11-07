@@ -125,6 +125,7 @@ class _RatedMovieState extends State<RatedMovie> {
                                                           TextButton(
                                                             onPressed: () {
                                                               if (review.id != null) {
+                                                                ratingProvider.deleteRating(review.id!);
                                                               }
                                                               Navigator.pop(ctx);
                                                               ScaffoldMessenger.of(context).showSnackBar(

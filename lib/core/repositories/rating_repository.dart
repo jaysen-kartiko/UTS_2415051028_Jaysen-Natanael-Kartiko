@@ -16,4 +16,7 @@ class RatingRepository {
     await _supabaseService.updateRating(id, data);
   }
 
+  Future<void> removeRating(int id) async {
+    await _supabaseService.deleteRating(id);
+  }
 }
