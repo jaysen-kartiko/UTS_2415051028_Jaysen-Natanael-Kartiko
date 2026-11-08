@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/profile_service.dart';
 import 'login_page.dart';
+import '../components/role_guard.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -30,49 +31,73 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('KosFinder'),
-        actions: [
-          IconButton(
-            tooltip: 'Logout',
-            icon: const Icon(Icons.logout),
-            onPressed: _logout,
+Widget build(BuildContext context) {
+  return FutureBuilder<UserProfile?>(
+    future: _profileFuture,
+    builder: (context, snap) {
+      if (snap.connectionState != ConnectionState.done) {
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        );
+      }
+      final p = snap.data;
+      if (snap.hasError || p == null) {
+        return const Scaffold(
+          body: Center(child: Text('Gagal memuat profil')),
+        );
+      }
+
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('KosFinder (${p.role})'),
+          actions: [
+            IconButton(
+              tooltip: 'Logout',
+              icon: const Icon(Icons.logout),
+              onPressed: _logout,
+            ),
+          ],
+        ),
+        // menu yang tampil berbeda untuk tiap role
+        body: ListView(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: Text(p.name.isEmpty ? p.email : p.name),
+              subtitle: Text('${p.email} • ${p.role}'),
+            ),
+            const Divider(),
+            const ListTile(
+              leading: Icon(Icons.list),
+              title: Text('Daftar Kos'),
+            ),
+            if (p.isOwner || p.isAdmin)
+              const ListTile(
+                leading: Icon(Icons.home_work),
+                title: Text('My Kos'),
+              ),
+            if (p.isAdmin)
+              const ListTile(
+                leading: Icon(Icons.admin_panel_settings),
+                title: Text('Kelola Data (Admin)'),
+              ),
+          ],
+        ),
+        // tombol "Tambah Kos" hanya untuk owner/admin
+        floatingActionButton: RoleGuard(
+          role: p.role,
+          allowed: const ['owner', 'admin'],
+          child: FloatingActionButton.extended(
+            onPressed: () {
+              // TODO: buka halaman Add Kos
+            },
+            icon: const Icon(Icons.add_home),
+            label: const Text('Tambah Kos'),
           ),
-        ],
-      ),
-      body: FutureBuilder<UserProfile?>(
-        future: _profileFuture,
-        builder: (context, snap) {
-          if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snap.hasError || snap.data == null) {
-            return const Center(child: Text('Gagal memuat profil'));
-          }
-          final p = snap.data!;
-          return ListView(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.person),
-                title: const Text('Nama'),
-                subtitle: Text(p.name.isEmpty ? '-' : p.name),
-              ),
-              ListTile(
-                leading: const Icon(Icons.email),
-                title: const Text('Email'),
-                subtitle: Text(p.email),
-              ),
-              ListTile(
-                leading: const Icon(Icons.badge),
-                title: const Text('Role'),
-                subtitle: Text(p.role),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
+        ),
+      );
+    },
+  );
+}
+
 }
