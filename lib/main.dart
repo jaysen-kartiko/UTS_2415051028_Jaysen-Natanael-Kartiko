@@ -9,6 +9,8 @@ import 'core/providers/user_provider.dart';
 import 'core/providers/watchlist_provider.dart';
 import 'screen/navigation_wrapper.dart';
 
+import 'screen/screens/login_page.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
@@ -35,7 +37,8 @@ class MyApp extends StatelessWidget {
       ],
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: NavigationApp(),
+        // home: NavigationApp(),
+        home: const LoginPage(),
       ),
     );
   }
