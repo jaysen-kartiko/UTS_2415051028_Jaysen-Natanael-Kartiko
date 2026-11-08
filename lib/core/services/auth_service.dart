@@ -10,12 +10,19 @@ class AuthService {
   Session? get currentSession => _client.auth.currentSession;
   bool get isLoggedIn => currentSession != null;
 
-  Future<AuthResponse> register({
-    required String email,
-    required String password,
-  }) {
-    return _client.auth.signUp(email: email, password: password);
-  }
+Future<AuthResponse> register({
+  required String email,
+  required String password,
+  String name = '',
+  String role = 'seeker', // 'seeker' atau 'owner'
+}) {
+  return _client.auth.signUp(
+    email: email,
+    password: password,
+    data: {'name': name, 'role': role}, // dibaca oleh trigger handle_new_user
+  );
+}
+
 
   Future<AuthResponse> login({
     required String email,
@@ -25,4 +32,6 @@ class AuthService {
   }
 
   Future<void> logout() => _client.auth.signOut();
+
+  
 }

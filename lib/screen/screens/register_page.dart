@@ -17,6 +17,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passC = TextEditingController();
   final _confirmC = TextEditingController();
   bool _loading = false;
+  final _nameC = TextEditingController();
+  String _role = 'seeker';
 
   @override
   void dispose() {
@@ -38,7 +40,10 @@ class _RegisterPageState extends State<RegisterPage> {
       final res = await AuthService.instance.register(
         email: _emailC.text.trim(),
         password: _passC.text,
+        name: _nameC.text.trim(),
+        role: _role,
       );
+
       if (!mounted) return;
 
       if (res.session != null) {
@@ -72,6 +77,22 @@ class _RegisterPageState extends State<RegisterPage> {
           child: ListView(
             children: [
               TextFormField(
+                controller: _nameC,
+                decoration: const InputDecoration(labelText: 'Nama'),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Nama wajib diisi' : null,
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: _role,
+                decoration: const InputDecoration(labelText: 'Daftar sebagai'),
+                items: const [
+                  DropdownMenuItem(value: 'seeker', child: Text('Pencari Kos')),
+                  DropdownMenuItem(value: 'owner', child: Text('Pemilik Kos')),
+                ],
+                onChanged: (v) => setState(() => _role = v ?? 'seeker'),
+              ),
+              TextFormField(
                 controller: _emailC,
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(labelText: 'Email'),
@@ -96,8 +117,9 @@ class _RegisterPageState extends State<RegisterPage> {
               TextFormField(
                 controller: _confirmC,
                 obscureText: true,
-                decoration:
-                    const InputDecoration(labelText: 'Konfirmasi Password'),
+                decoration: const InputDecoration(
+                  labelText: 'Konfirmasi Password',
+                ),
                 validator: (v) =>
                     v != _passC.text ? 'Password tidak sama' : null,
               ),
