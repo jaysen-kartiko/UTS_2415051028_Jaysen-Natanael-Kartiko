@@ -11,8 +11,10 @@ import 'screen/navigation_wrapper.dart';
 import 'screen/screens/home_page.dart';
 import 'screen/screens/login_page.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/services/notification_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +23,7 @@ Future<void> main() async {
     await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
 
   await Supabase.initialize(

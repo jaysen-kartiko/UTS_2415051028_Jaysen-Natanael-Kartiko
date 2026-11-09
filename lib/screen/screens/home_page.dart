@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/profile_service.dart';
 import '../../core/services/kos_service.dart';
+import '../../core/services/notification_service.dart';
 import 'login_page.dart';
 
 import '../components/role_guard.dart';
@@ -28,6 +29,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _profileFuture = ProfileService().getMyProfile();
+NotificationService.instance.init();
     _loadKosData();
   }
 
