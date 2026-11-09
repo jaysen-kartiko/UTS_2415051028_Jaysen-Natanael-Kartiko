@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "237566391566",
+    "project_id": "movietracker-23e90",
+    "storage_bucket": "movietracker-23e90.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:237566391566:android:697ea8da9da115bda8d35f",
+        "android_client_info": {
+          "package_name": "com.example.mid_test_mobile_programming"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "237566391566-r38th713iqkepm5f8n6u9his1gccc2u6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKpLzUv-hN70pJkp3587Ey0FC4oID7izI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "237566391566-r38th713iqkepm5f8n6u9his1gccc2u6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
